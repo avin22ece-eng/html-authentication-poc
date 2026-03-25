@@ -1,27 +1,256 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Register</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Authenticator</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-card-header">
+                    <h1 class="auth-card-title">Create Account</h1>
+                    <p class="auth-card-subtitle">Join us today and get started</p>
+                </div>
 
-    <h1>Registration Page</h1>
+                <div id="alert-container"></div>
 
-    <form>
-        <label>Full Name:</label><br>
-        <input type="text" name="fullname"><br><br>
+                <form class="auth-form" id="registerForm" novalidate>
+                    <div class="form-group">
+                        <label for="fullname" class="form-label">Full Name</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="fullname" 
+                            name="fullname" 
+                            placeholder="John Doe"
+                            required>
+                        <small class="form-text text-danger d-none" id="fullnameError"></small>
+                    </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email"><br><br>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            class="form-control" 
+                            id="email" 
+                            name="email" 
+                            placeholder="you@example.com"
+                            required>
+                        <small class="form-text text-danger d-none" id="emailError"></small>
+                    </div>
 
-        <label>Password:</label><br>
-        <input type="password" name="password"><br><br>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input 
+                            type="password" 
+                            class="form-control" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••"
+                            required>
+                        <small class="form-text text-muted">At least 8 characters with uppercase, lowercase, and numbers</small>
+                        <small class="form-text text-danger d-none" id="passwordError"></small>
+                    </div>
 
-        <a href="login.html">Register</a>
-    </form>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </button>
+                </form>
 
-    <p>Already have an account?</p>
-    <a href="login.html">Login Here</a>
+                <div class="link-group">
+                    <div class="link-item">
+                        <span class="link-text">Already have an account?</span>
+                        <a href="login.html">Sign in here</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const form = document.getElementById('registerForm');
+        const fullnameInput = document.getElementById('fullname');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const alertContainer = document.getElementById('alert-container');
+
+        // Validation regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+
+        // Show alert
+        function showAlert(message, type = 'danger') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+
+        // Clear alerts
+        function clearAlerts() {
+            alertContainer.innerHTML = '';
+        }
+
+        // Clear error messages
+        function clearErrors() {
+            document.getElementById('fullnameError').classList.add('d-none');
+            document.getElementById('emailError').classList.add('d-none');
+            document.getElementById('passwordError').classList.add('d-none');
+            fullnameInput.classList.remove('is-invalid');
+            emailInput.classList.remove('is-invalid');
+            passwordInput.classList.remove('is-invalid');
+        }
+
+        // Validate full name
+        function validateFullname() {
+            clearAlerts();
+            const fullname = fullnameInput.value.trim();
+            const fullnameError = document.getElementById('fullnameError');
+
+            if (!fullname) {
+                fullnameError.textContent = 'Full name is required';
+                fullnameError.classList.remove('d-none');
+                fullnameInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (fullname.length < 3) {
+                fullnameError.textContent = 'Full name must be at least 3 characters';
+                fullnameError.classList.remove('d-none');
+                fullnameInput.classList.add('is-invalid');
+                return false;
+            }
+
+            fullnameInput.classList.remove('is-invalid');
+            fullnameError.classList.add('d-none');
+            return true;
+        }
+
+        // Validate email
+        function validateEmail() {
+            clearAlerts();
+            const email = emailInput.value.trim();
+            const emailError = document.getElementById('emailError');
+
+            if (!email) {
+                emailError.textContent = 'Email is required';
+                emailError.classList.remove('d-none');
+                emailInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.classList.remove('d-none');
+                emailInput.classList.add('is-invalid');
+                return false;
+            }
+
+            emailInput.classList.remove('is-invalid');
+            emailError.classList.add('d-none');
+            return true;
+        }
+
+        // Validate password
+        function validatePassword() {
+            clearAlerts();
+            const password = passwordInput.value;
+            const passwordError = document.getElementById('passwordError');
+
+            if (!password) {
+                passwordError.textContent = 'Password is required';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (password.length < 8) {
+                passwordError.textContent = 'Password must be at least 8 characters';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (!/[A-Z]/.test(password)) {
+                passwordError.textContent = 'Password must contain at least one uppercase letter';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (!/[a-z]/.test(password)) {
+                passwordError.textContent = 'Password must contain at least one lowercase letter';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (!/\d/.test(password)) {
+                passwordError.textContent = 'Password must contain at least one number';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            passwordInput.classList.remove('is-invalid');
+            passwordError.classList.add('d-none');
+            return true;
+        }
+
+        // Real-time validation
+        fullnameInput.addEventListener('blur', validateFullname);
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const isFullnameValid = validateFullname();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (isFullnameValid && isEmailValid && isPasswordValid) {
+                const fullname = fullnameInput.value.trim();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                // Store user registration data in localStorage
+                localStorage.setItem('userData', JSON.stringify({
+                    fullname: fullname,
+                    email: email,
+                    password: password,
+                    registeredAt: new Date().toISOString(),
+                    verified: true
+                }));
+
+                showAlert('✓ Account created successfully! Redirecting to login...', 'success');
+                
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                showAlert('Please fix the errors above before continuing', 'danger');
+            }
+        });
+    </script>
 </body>
 </html>
