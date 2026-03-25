@@ -1,26 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Authenticator</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-card-header">
+                    <h1 class="auth-card-title">Welcome Back</h1>
+                    <p class="auth-card-subtitle">Sign in to your account to continue</p>
+                </div>
 
-    <h1>Login Page</h1>
+                <div id="alert-container"></div>
 
-    <form>
-        <label>Email:</label><br>
-        <input type="email" name="email"><br><br>
+                <form class="auth-form" id="loginForm" novalidate>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            class="form-control" 
+                            id="email" 
+                            name="email" 
+                            placeholder="you@example.com"
+                            required>
+                        <small class="form-text text-danger d-none" id="emailError"></small>
+                    </div>
 
-        <label>Password:</label><br>
-        <input type="password" name="password"><br><br>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input 
+                            type="password" 
+                            class="form-control" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••"
+                            required>
+                        <small class="form-text text-danger d-none" id="passwordError"></small>
+                    </div>
 
-        <a href="dashboard.html">Login</a>
-    </form>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </button>
+                </form>
 
-    <p>Don't have an account?</p>
-    <a href="register.html">Register Here</a><br><br>
+                <div class="link-group">
+                    <div class="link-item">
+                        <span class="link-text">Don't have an account?</span>
+                        <a href="register.html">Create one now</a>
+                    </div>
+                    
+                    <div class="link-item">
+                        <a href="forgot-password.html" class="btn-link">
+                            <i class="bi bi-question-circle"></i> Forgot Password?
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <a href="forgot-password.html">Forgot Password?</a>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const alertContainer = document.getElementById('alert-container');
+
+        // Email validation regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // Show alert
+        function showAlert(message, type = 'danger') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+
+        // Clear alerts
+        function clearAlerts() {
+            alertContainer.innerHTML = '';
+        }
+
+        // Clear error messages
+        function clearErrors() {
+            document.getElementById('emailError').classList.add('d-none');
+            document.getElementById('passwordError').classList.add('d-none');
+            emailInput.classList.remove('is-invalid');
+            passwordInput.classList.remove('is-invalid');
+        }
+
+        // Validate email
+        function validateEmail() {
+            clearAlerts();
+            const email = emailInput.value.trim();
+            const emailError = document.getElementById('emailError');
+
+            if (!email) {
+                emailError.textContent = 'Email is required';
+                emailError.classList.remove('d-none');
+                emailInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.classList.remove('d-none');
+                emailInput.classList.add('is-invalid');
+                return false;
+            }
+
+            emailInput.classList.remove('is-invalid');
+            emailError.classList.add('d-none');
+            return true;
+        }
+
+        // Validate password
+        function validatePassword() {
+            clearAlerts();
+            const password = passwordInput.value;
+            const passwordError = document.getElementById('passwordError');
+
+            if (!password) {
+                passwordError.textContent = 'Password is required';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            if (password.length < 6) {
+                passwordError.textContent = 'Password must be at least 6 characters';
+                passwordError.classList.remove('d-none');
+                passwordInput.classList.add('is-invalid');
+                return false;
+            }
+
+            passwordInput.classList.remove('is-invalid');
+            passwordError.classList.add('d-none');
+            return true;
+        }
+
+        // Real-time validation
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (isEmailValid && isPasswordValid) {
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                // Store login info in localStorage
+                localStorage.setItem('userData', JSON.stringify({
+                    email: email,
+                    loggedIn: true,
+                    loginTime: new Date().toISOString()
+                }));
+
+                showAlert('✓ Login successful! Redirecting to dashboard...', 'success');
+                
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                showAlert('Please fix the errors above before continuing', 'danger');
+            }
+        });
+
+        // Load saved email if exists
+        window.addEventListener('load', function() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const data = JSON.parse(userData);
+                    if (data.email) {
+                        emailInput.value = data.email;
+                    }
+                } catch (e) {
+                    console.log('Could not load saved data');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
