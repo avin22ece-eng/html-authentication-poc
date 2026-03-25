@@ -1,15 +1,172 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Authenticator</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h1 class="navbar-brand">
+                <i class="bi bi-shield-check"></i> Authenticator
+            </h1>
+            <ul class="navbar-nav">
+                <li><a href="#profile"><i class="bi bi-person-circle"></i> Profile</a></li>
+                <li><a href="#settings"><i class="bi bi-gear"></i> Settings</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a></li>
+            </ul>
+        </div>
+    </nav>
 
-    <h1>Welcome to Dashboard</h1>
+    <!-- Dashboard Content -->
+    <div class="dashboard-wrapper">
+        <div class="dashboard-container">
+            <!-- Alert for login status -->
+            <div id="alert-container"></div>
 
-    <p>You are successfully logged in.</p>
+            <!-- Hero Section -->
+            <div class="dashboard-hero">
+                <h1><i class="bi bi-hand-thumbs-up"></i> Welcome Back, <span id="userDisplayName">User</span>!</h1>
+                <p>You are successfully logged into your account</p>
+            </div>
 
-    <a href="login.html">Logout</a>
+            <!-- Dashboard Card -->
+            <div class="dashboard-card">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2>Account Overview</h2>
+                        <p>
+                            You have successfully authenticated and are now viewing your personal dashboard. 
+                            This is a secure area where you can manage your account settings, view your profile information, 
+                            and access various features.
+                        </p>
+                        <p>
+                            Use the navigation menu above to explore different sections of your account or modify your settings as needed.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); border-radius: 12px; padding: 20px; color: white; text-align: center;">
+                            <i class="bi bi-check-circle" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
+                            <h4>All Systems</h4>
+                            <p style="margin: 0;">Operating Normally</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+                <h2><i class="bi bi-lightning-charge"></i> Quick Actions</h2>
+                <div class="row mt-4">
+                    <div class="col-md-4 mb-3">
+                        <a href="#profile" class="btn btn-primary btn-block">
+                            <i class="bi bi-person"></i> Update Profile
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="#security" class="btn btn-secondary btn-block">
+                            <i class="bi bi-lock"></i> Security Settings
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="login.html" class="btn btn-secondary btn-block">
+                            <i class="bi bi-box-arrow-right"></i> Sign Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="alert alert-success mt-4">
+                <h5><i class="bi bi-info-circle"></i> Account Status</h5>
+                <p class="mb-0">Your account is active and in good standing. All features are available to you.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const userData = localStorage.getItem('userData');
+            const alertContainer = document.getElementById('alert-container');
+
+            if (!userData) {
+                // User not logged in, redirect to login
+                alertContainer.innerHTML = `
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i> You must log in first. Redirecting to login page...
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            try {
+                const data = JSON.parse(userData);
+                
+                // Display user name or email
+                const displayName = data.fullname || data.email || 'User';
+                document.getElementById('userDisplayName').textContent = displayName.split(' ')[0]; // First name only
+
+                // Show success message
+                alertContainer.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle"></i> Successfully logged in as <strong>${displayName}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+
+                // Mark user as logged in
+                data.loggedIn = true;
+                data.lastLogin = new Date().toISOString();
+                localStorage.setItem('userData', JSON.stringify(data));
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Logout handler
+        document.querySelectorAll('a[href="login.html"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const isLogoutButton = this.textContent.includes('Logout') || this.textContent.includes('Sign Out');
+                if (isLogoutButton) {
+                    e.preventDefault();
+                    // Clear user data on logout
+                    localStorage.removeItem('userData');
+                    // Show logout message
+                    const alertContainer = document.getElementById('alert-container');
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="bi bi-info-circle"></i> You have been logged out successfully. Redirecting...
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
